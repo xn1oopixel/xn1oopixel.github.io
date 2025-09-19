@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pixel Clicker</title>
+<title>Chill Guy Clicker</title>
 <style>
   html,body{margin:0;padding:0;height:100%;display:flex;justify-content:center;align-items:center;background:#0a0a12;font-family:monospace;color:#fff}
   canvas{image-rendering:pixelated;border:4px solid #111;box-shadow:0 8px 20px rgba(0,0,0,0.5)}
@@ -13,49 +13,69 @@
 </head>
 <body>
 <div class="ui">
-  <div>Points: <span id="points">0</span></div>
-  <button id="clickBtn">Click Me!</button>
-  <div style="margin-top:6px;">Upgrade: +1 per click <button id="upgradeBtn">Cost: 10</button></div>
+  <div>Chill Points: <span id="points">0</span></div>
+  <button id="clickBtn">Click Chill Guy</button>
+  <div style="margin-top:6px;">Upgrades:</div>
+  <button id="upgrade1">+1 per click (Cost: 10)</button>
+  <button id="upgrade2">Auto Clicker +1/sec (Cost: 50)</button>
 </div>
 <canvas id="gameCanvas" width="320" height="180"></canvas>
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
+ctx.imageSmoothingEnabled=false;
 
 let points = 0;
 let perClick = 1;
-let upgradeCost = 10;
+let autoClick = 0;
+let upgrade1Cost = 10;
+let upgrade2Cost = 50;
 
 const pointsEl = document.getElementById('points');
 const clickBtn = document.getElementById('clickBtn');
-const upgradeBtn = document.getElementById('upgradeBtn');
+const upgrade1 = document.getElementById('upgrade1');
+const upgrade2 = document.getElementById('upgrade2');
 
-clickBtn.onclick = ()=>{
-  points += perClick;
-  pointsEl.textContent = points;
+clickBtn.onclick = ()=>{ points+=perClick; pointsEl.textContent = points; };
+upgrade1.onclick = ()=>{
+  if(points>=upgrade1Cost){
+    points-=upgrade1Cost; perClick+=1;
+    upgrade1Cost = Math.floor(upgrade1Cost*1.7);
+    upgrade1.textContent = `+1 per click (Cost: ${upgrade1Cost})`;
+    pointsEl.textContent=points;
+  }
 };
-
-upgradeBtn.onclick = ()=>{
-  if(points >= upgradeCost){
-    points -= upgradeCost;
-    perClick += 1;
-    upgradeCost = Math.floor(upgradeCost * 1.7);
-    upgradeBtn.textContent = `Cost: ${upgradeCost}`;
-    pointsEl.textContent = points;
+upgrade2.onclick = ()=>{
+  if(points>=upgrade2Cost){
+    points-=upgrade2Cost; autoClick+=1;
+    upgrade2Cost = Math.floor(upgrade2Cost*2);
+    upgrade2.textContent = `Auto Clicker +1/sec (Cost: ${upgrade2Cost})`;
+    pointsEl.textContent=points;
   }
 };
 
-// Simple animated background
+// Auto clicker interval
+setInterval(()=>{ points+=autoClick; pointsEl.textContent=points; },1000);
+
+// Stars background
 let stars = Array.from({length:50},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5}));
+
 function draw(){
-  ctx.fillStyle='#071025';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#071025'; ctx.fillRect(0,0,canvas.width,canvas.height);
   // stars
-  ctx.fillStyle='#fff';
-  stars.forEach(s=>{
-    ctx.fillRect(s.x,s.y,s.r,s.r);
-  });
+  ctx.fillStyle='#fff'; stars.forEach(s=>{ ctx.fillRect(s.x,s.y,s.r,s.r); });
+
+  // Draw Chill Guy pixel character
+  const cx = canvas.width/2, cy = canvas.height/2;
+  // body
+  ctx.fillStyle='#e7c07a'; ctx.fillRect(cx-4,cy-6,8,12);
+  // head
+  ctx.fillStyle='#f7e0b0'; ctx.fillRect(cx-4,cy-12,8,6);
+  // eyes
+  ctx.fillStyle='#000'; ctx.fillRect(cx-3,cy-10,2,1); ctx.fillRect(cx+1,cy-10,2,1);
+  // smile
+  ctx.fillStyle='#000'; ctx.fillRect(cx-2,cy-6,4,1);
+
   requestAnimationFrame(draw);
 }
 draw();
